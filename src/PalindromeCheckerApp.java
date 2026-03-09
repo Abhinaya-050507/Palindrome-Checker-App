@@ -1,66 +1,91 @@
-import java.util.Stack;
-import java.util.ArrayDeque;
-import java.util.Deque;
+class Node {
+    char data;
+    Node next;
+
+    Node(char data) {
+        this.data = data;
+        this.next = null;
+    }
+}
 
 public class PalindromeCheckerApp {
 
-    // Stack Method
-    public static boolean stackPalindrome(String input) {
+    Node head;
 
-        Stack<Character> stack = new Stack<>();
+    // Insert character into linked list
+    void insert(char data) {
+        Node newNode = new Node(data);
 
-        for (char c : input.toCharArray()) {
-            stack.push(c);
+        if (head == null) {
+            head = newNode;
+            return;
         }
 
-        for (char c : input.toCharArray()) {
-            if (c != stack.pop()) {
-                return false;
-            }
-        }
+        Node temp = head;
+        while (temp.next != null)
+            temp = temp.next;
 
-        return true;
+        temp.next = newNode;
     }
 
-    // Deque Method
-    public static boolean dequePalindrome(String input) {
+    // Reverse linked list
+    Node reverse(Node node) {
+        Node prev = null;
+        Node current = node;
+        Node next = null;
 
-        Deque<Character> deque = new ArrayDeque<>();
-
-        for (char c : input.toCharArray()) {
-            deque.addLast(c);
+        while (current != null) {
+            next = current.next;
+            current.next = prev;
+            prev = current;
+            current = next;
         }
 
-        while (deque.size() > 1) {
-            if (deque.removeFirst() != deque.removeLast()) {
+        return prev;
+    }
+
+    // Check palindrome
+    boolean isPalindrome() {
+        if (head == null || head.next == null)
+            return true;
+
+        Node slow = head;
+        Node fast = head;
+
+        // Find middle
+        while (fast != null && fast.next != null) {
+            slow = slow.next;
+            fast = fast.next.next;
+        }
+
+        // Reverse second half
+        Node secondHalf = reverse(slow);
+
+        Node firstHalf = head;
+
+        // Compare halves
+        while (secondHalf != null) {
+            if (firstHalf.data != secondHalf.data)
                 return false;
-            }
+
+            firstHalf = firstHalf.next;
+            secondHalf = secondHalf.next;
         }
 
         return true;
     }
 
     public static void main(String[] args) {
-
         String input = "level";
 
-        // Stack Performance
-        long startStack = System.nanoTime();
-        boolean stackResult = stackPalindrome(input);
-        long endStack = System.nanoTime();
+        PalindromeCheckerApp list = new PalindromeCheckerApp();
 
-        long stackTime = endStack - startStack;
+        for (char c : input.toCharArray())
+            list.insert(c);
 
-        // Deque Performance
-        long startDeque = System.nanoTime();
-        boolean dequeResult = dequePalindrome(input);
-        long endDeque = System.nanoTime();
-
-        long dequeTime = endDeque - startDeque;
-
-        System.out.println("Input : " + input);
-        System.out.println("Is Palindrome : " + stackResult);
-        System.out.println("Execution Time (Stack) : " + stackTime + " ns");
-        System.out.println("Execution Time (Deque) : " + dequeTime + " ns");
+        if (list.isPalindrome())
+            System.out.println("Input = " + input + ", is Palindrome: Yes");
+        else
+            System.out.println("Input = " + input + ", is Palindrome: No");
     }
 }
