@@ -1,37 +1,88 @@
-class PalindromeChecker {
+import java.util.Stack;
+import java.util.ArrayDeque;
+import java.util.Deque;
 
-    // Method to check palindrome
-    public boolean checkPalindrome(String input) {
+// Strategy Interface
+interface PalindromeStrategy {
+    boolean check(String input);
+}
 
-        String normalized = input.toLowerCase();
+// Stack Strategy Implementation
+class StackStrategy implements PalindromeStrategy {
 
-        char[] chars = normalized.toCharArray();
+    public boolean check(String input) {
 
-        int left = 0;
-        int right = chars.length - 1;
+        Stack<Character> stack = new Stack<>();
 
-        while (left < right) {
-            if (chars[left] != chars[right]) {
+        // Push characters into stack
+        for (char c : input.toCharArray()) {
+            stack.push(c);
+        }
+
+        // Compare by popping
+        for (char c : input.toCharArray()) {
+            if (c != stack.pop()) {
                 return false;
             }
-            left++;
-            right--;
         }
 
         return true;
     }
 }
+
+// Deque Strategy Implementation
+class DequeStrategy implements PalindromeStrategy {
+
+    public boolean check(String input) {
+
+        Deque<Character> deque = new ArrayDeque<>();
+
+        // Add characters to deque
+        for (char c : input.toCharArray()) {
+            deque.addLast(c);
+        }
+
+        // Compare first and last
+        while (deque.size() > 1) {
+            if (deque.removeFirst() != deque.removeLast()) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+}
+
+// Context Class
+class PalindromeChecker {
+
+    private PalindromeStrategy strategy;
+
+    public PalindromeChecker(PalindromeStrategy strategy) {
+        this.strategy = strategy;
+    }
+
+    public boolean checkPalindrome(String input) {
+        return strategy.check(input);
+    }
+}
+
+// Main Application
 public class PalindromeCheckerApp {
 
     public static void main(String[] args) {
 
-        String input = "racecar";
+        String input = "level";
 
-        PalindromeChecker checker = new PalindromeChecker();
+        // Choose strategy dynamically
+        PalindromeStrategy strategy = new StackStrategy();
+        //PalindromeStrategy strategy = new DequeStrategy();
+
+        PalindromeChecker checker = new PalindromeChecker(strategy);
 
         boolean result = checker.checkPalindrome(input);
 
-        System.out.println("Input = " + input);
-        System.out.println("Is Palindrome: " + (result ? "Yes" : "No"));
+        System.out.println("Input : " + input);
+        System.out.println("Is Palindrome? : " + result);
     }
 }
